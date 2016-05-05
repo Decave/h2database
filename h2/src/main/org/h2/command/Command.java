@@ -302,28 +302,28 @@ public abstract class Command implements CommandInterface {
                 errorCode != ErrorCode.ROW_NOT_FOUND_WHEN_DELETING_1) {
             throw e;
         }
-        long now = System.nanoTime() / 1000000;
+        long now = System.nanoTime();
         if (start != 0 && now - start > session.getLockTimeout()) {
             throw DbException.get(ErrorCode.LOCK_TIMEOUT_1, e.getCause(), "");
         }
         Database database = session.getDatabase();
-        int sleep = 1 + MathUtils.randomInt(10);
+        int sleep = 1000 * (1 + MathUtils.randomInt(10));
         while (true) {
             try {
                 if (database.isMultiThreaded()) {
-                    Thread.sleep(sleep);
+                    Thread.sleep(0, sleep);
                 } else {
-                    database.wait(sleep);
+                    database.wait(0, sleep);
                 }
             } catch (InterruptedException e1) {
                 // ignore
             }
-            long slept = System.nanoTime() / 1000000 - now;
+            long slept = System.nanoTime() - now;
             if (slept >= sleep) {
                 break;
             }
         }
-        return start == 0 ? now : start;
+        return start == 0 ? now / 1000000 : start;
     }
 
     @Override
