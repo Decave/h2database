@@ -307,6 +307,8 @@ public abstract class Command implements CommandInterface {
             throw DbException.get(ErrorCode.LOCK_TIMEOUT_1, e.getCause(), "");
         }
         Database database = session.getDatabase();
+        
+        // Sleep for 1-10 microseconds instead of 1-10 milliseconds
         int sleep = 1000 * (1 + MathUtils.randomInt(10));
         while (true) {
             try {
